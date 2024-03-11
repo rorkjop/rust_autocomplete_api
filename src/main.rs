@@ -1,5 +1,4 @@
 use actix_web::http::header::{self, HeaderValue};
-use actix_web::http::KeepAlive;
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -117,7 +116,6 @@ async fn main() -> std::io::Result<()> {
             .app_data(data.clone())
             .route("/autocomplete", web::get().to(autocomplete))
     })
-    .keep_alive(KeepAlive::Disabled)
     .workers(2)
     .max_connections(500)
     .bind(format!("0.0.0.0:{}", port))?
