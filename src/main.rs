@@ -118,7 +118,7 @@ async fn main() -> std::io::Result<()> {
             .route("/autocomplete", web::get().to(autocomplete))
     })
     .keep_alive(KeepAlive::Disabled)
-    .workers(1)
+    .workers(2)
     .max_connections(500)
     .bind(format!("0.0.0.0:{}", port))?
     .run()
