@@ -92,10 +92,6 @@ async fn autocomplete(
         header::ACCESS_CONTROL_EXPOSE_HEADERS,
         HeaderValue::from_static("Content-Type,Content-Length,Content-Range"),
     );
-    headers.append(
-        header::CONTENT_TYPE,
-        HeaderValue::from_static("application/json"),
-    );
 
     println!("Search took: {:?}", start.elapsed());
 
