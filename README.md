@@ -46,3 +46,11 @@ docker run --rm -it -p 8080:8080 (docker build -q .)
 ```
 
 Hit Ctrl+C to exit.
+
+## Data Attribution and License Information
+
+The data used in this project, [Matrikkelen - Adresse](https://kartkatalog.geonorge.no/metadata/matrikkelen-adresse/f7df7a18-b30f-4745-bd64-d0863812350c), was created by Kartverket and obtained from [Geonorge.no](https://kartkatalog.geonorge.no/). It is licensed under CC BY 4.0.
+
+The source code contained in this project is licensed under MIT.
+
+This project is not affiliated with or recommended by Kartverket.
