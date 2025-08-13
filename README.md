@@ -7,6 +7,7 @@ cd data/
 wget https://nedlasting.geonorge.no/geonorge/Basisdata/MatrikkelenAdresse/CSV/Basisdata_0000_Norge_25833_MatrikkelenAdresse_CSV.zip
 unzip -j Basisdata_0000_Norge_25833_MatrikkelenAdresse_CSV.zip
 xsv fmt -d ';' matrikkelenAdresse.csv | xsv select 'kommunenummer,adresseTekst,gardsnummer,bruksnummer' > adresser.filtered.csv
+xsv stats --cardinality adresser.filtered.csv | xsv select "field,type,cardinality" | xsv flatten > stats
 gzip adresser.filtered.csv
 rm *.csv *.zip
 ```

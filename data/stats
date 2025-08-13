@@ -1,0 +1,15 @@
+field        kommunenummer
+type         Integer
+cardinality  358
+#
+field        adresseTekst
+type         Unicode
+cardinality  2277408
+#
+field        gardsnummer
+type         Integer
+cardinality  2572
+#
+field        bruksnummer
+type         Integer
+cardinality  6081
