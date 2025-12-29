@@ -48,7 +48,7 @@ fn load_csv_data(file_path: &str) -> Result<HashMap<u16, Vec<String>>, Box<dyn s
     Ok(data)
 }
 
-async fn autocomplete<'a>(
+fn autocomplete<'a>(
     prefix: &str,
     kommunenummer: u16,
     data: &'a HashMap<u16, Vec<String>>,
@@ -71,7 +71,7 @@ async fn autocomplete_route(
 
     let prefix = search_info.prefix.to_lowercase();
     let kommunenummer = search_info.kommunenummer.to_owned();
-    let Some(results) = autocomplete(&prefix, kommunenummer, &data).await else {
+    let Some(results) = autocomplete(&prefix, kommunenummer, &data) else {
         return HttpResponse::UnprocessableEntity().json(json!({
             "message": "Invalid kommunenummer",
         }));
@@ -125,4 +125,52 @@ async fn main() -> std::io::Result<()> {
     .bind(format!("0.0.0.0:{}", port))?
     .run()
     .await
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_smoke_test_load_csv_data() {
+        let data = load_csv_data("data/adresser.sample.csv.gz").expect("Failed to load CSV data");
+        assert!(!data.is_empty());
+    }
+
+    #[test]
+    fn test_autocomplete() {
+        let data = helpers::dummy_hashmap();
+        let results =
+            autocomplete("test", 1234, &data).expect("Failed to get autocomplete results");
+        assert_eq!(results.len(), 2);
+        assert_eq!(results[0], "Testveien 1");
+    }
+
+    #[test]
+    fn test_autocomplete_no_results() {
+        let data = helpers::dummy_hashmap();
+        let results = autocomplete("foo", 1234, &data);
+        assert!(results.is_some());
+        assert_eq!(results.unwrap().len(), 0);
+    }
+
+    #[test]
+    fn test_autocomplete_invalid_kommunenummer() {
+        let data = helpers::dummy_hashmap();
+        let results = autocomplete("test", 9999, &data);
+        assert!(results.is_none());
+    }
+
+    mod helpers {
+        use std::collections::HashMap;
+
+        pub fn dummy_hashmap() -> HashMap<u16, Vec<String>> {
+            let mut data: HashMap<u16, Vec<String>> = HashMap::new();
+            data.insert(
+                1234,
+                vec!["Testveien 1".to_string(), "Testveien 2".to_string()],
+            );
+            data
+        }
+    }
 }
