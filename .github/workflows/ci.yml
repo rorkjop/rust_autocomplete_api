@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          cache-key: v2
+          components: clippy,rustfmt
+
+      - name: Check formatting
+        run: cargo fmt --check
+
+      - name: Check code
+        run: cargo check
+
+      - name: Run clippy
+        run: cargo clippy
+
+      - name: Test
+        run: cargo test
+
+      - name: Build
+        run: cargo build
