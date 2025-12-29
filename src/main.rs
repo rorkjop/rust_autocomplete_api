@@ -1,6 +1,7 @@
 use actix_web::http::header::{self, HeaderValue};
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use std::collections::HashMap;
 use std::io::{Read, Write};
 use tempfile::NamedTempFile;
@@ -47,33 +48,36 @@ fn load_csv_data(file_path: &str) -> Result<HashMap<u16, Vec<String>>, Box<dyn s
     Ok(data)
 }
 
-async fn autocomplete(
+async fn autocomplete<'a>(
+    prefix: &str,
+    kommunenummer: u16,
+    data: &'a HashMap<u16, Vec<String>>,
+) -> Option<Vec<&'a String>> {
+    let terms = data.get(&kommunenummer)?;
+    Some(
+        terms
+            .iter()
+            .filter(|term| term.to_lowercase().starts_with(prefix))
+            .take(10)
+            .collect(),
+    )
+}
+
+async fn autocomplete_route(
     search_info: web::Query<SearchInfo>,
     data: web::Data<HashMap<u16, Vec<String>>>,
 ) -> impl Responder {
-    let mut results = Vec::new();
-    let prefix = search_info.prefix.to_lowercase();
-    let kommunenummer = search_info.kommunenummer.to_owned();
-
     let start = std::time::Instant::now();
 
-    if let Some(terms) = data.get(&kommunenummer) {
-        results = terms
-            .iter()
-            .filter(|term| term.to_lowercase().starts_with(&prefix))
-            .take(10)
-            .cloned()
-            .collect();
-    }
-
-    // Allow content type negotiation with text/plain and application/json
-    let accept = "application/json";
-
-    // Respond based on accept
-    let mut response = match accept {
-        "application/json" => HttpResponse::Ok().json(results),
-        _ => HttpResponse::Ok().body(results.join("\n")),
+    let prefix = search_info.prefix.to_lowercase();
+    let kommunenummer = search_info.kommunenummer.to_owned();
+    let Some(results) = autocomplete(&prefix, kommunenummer, &data).await else {
+        return HttpResponse::UnprocessableEntity().json(json!({
+            "message": "Invalid kommunenummer",
+        }));
     };
+
+    let mut response = HttpResponse::Ok().json(results);
     let headers = response.headers_mut();
     headers.append(
         header::ACCESS_CONTROL_ALLOW_ORIGIN,
@@ -114,7 +118,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(data.clone())
-            .route("/autocomplete", web::get().to(autocomplete))
+            .route("/autocomplete", web::get().to(autocomplete_route))
     })
     .workers(2)
     .max_connections(500)
