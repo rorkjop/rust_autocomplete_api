@@ -41,7 +41,7 @@ fn load_csv_data(file_path: &str) -> Result<HashMap<u16, Vec<String>>, Box<dyn s
     for result in rdr.deserialize() {
         let record: TermEntry = result?;
         data.entry(record.kommunenummer)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(record.adressetekst);
     }
     Ok(data)
@@ -94,7 +94,7 @@ async fn autocomplete(
 
     println!("Search took: {:?}", start.elapsed());
 
-    return response;
+    response
 }
 
 #[actix_web::main]
