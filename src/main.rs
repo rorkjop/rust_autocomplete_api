@@ -1,10 +1,8 @@
 use actix_web::http::header::{self, HeaderValue};
-use actix_web::{web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{App, HttpResponse, HttpServer, Responder, web};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::collections::HashMap;
-use std::io::{Read, Write};
-use tempfile::NamedTempFile;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 struct TermEntry {
@@ -19,25 +17,10 @@ struct SearchInfo {
     kommunenummer: u16,
 }
 
-// Gunzip file at file_path and write to a temporary file and return the path to the temporary file
-fn gunzip(file_path: &str) -> NamedTempFile {
-    let file = std::fs::File::open(file_path).expect("Failed to open file");
-    let mut buffer = Vec::new();
-    let mut decoder = flate2::read::GzDecoder::new(file);
-    decoder
-        .read_to_end(&mut buffer)
-        .expect("Failed to read file");
-    let mut temp_file = NamedTempFile::new().expect("Failed to create temporary file");
-    temp_file
-        .write_all(&buffer)
-        .expect("Failed to write to temporary file");
-    temp_file.flush().expect("Failed to flush temporary file");
-    temp_file
-}
-
 fn load_csv_data(file_path: &str) -> Result<HashMap<u16, Vec<String>>, Box<dyn std::error::Error>> {
-    let csv_file = gunzip(file_path);
-    let mut rdr = csv::Reader::from_path(csv_file.path())?;
+    let file = std::fs::File::open(file_path)?;
+    let gz_reader = flate2::read::GzDecoder::new(file);
+    let mut rdr = csv::ReaderBuilder::new().from_reader(gz_reader);
     let mut data: HashMap<u16, Vec<String>> = HashMap::new();
     for result in rdr.deserialize() {
         let record: TermEntry = result?;
