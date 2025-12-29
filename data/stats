@@ -4,12 +4,12 @@ cardinality  358
 #
 field        adresseTekst
 type         Unicode
-cardinality  2293046
+cardinality  2297333
 #
 field        gardsnummer
 type         Integer
-cardinality  2571
+cardinality  2568
 #
 field        bruksnummer
 type         Integer
-cardinality  6092
+cardinality  6095
