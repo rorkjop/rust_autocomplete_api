@@ -6,7 +6,7 @@ edition = "2024"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-actix-web = "4.12.1"
+actix-web = "4.13.0"
 csv = "1.4.0"
 flate2 = "1.1.9"
 serde = { version = "1.0.228", features = ["derive"] }
