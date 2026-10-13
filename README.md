@@ -36,16 +36,23 @@ cargo run
 
 Server is hosted on port 8080 - port can be overridden by setting a `PORT` environment variable.
 
-## Building with docker
+## Docker image
+
+A public image is published to GitHub Container Registry by manually running the
+"Publish image" workflow from `main` (Actions → Publish image → Run workflow):
 
 ```
-docker build .
+docker run --rm -it -p 8080:8080 ghcr.io/rorkjop/matrikkel-api:latest
 ```
 
-## Running with docker locally
+Images are tagged with the version from `Cargo.toml` and `latest`. Bump the version
+before publishing; the workflow refuses to overwrite an existing version.
+
+## Building with docker locally
 
 ```
-docker run --rm -it -p 8080:8080 (docker build -q .)
+docker build -t matrikkel-api .
+docker run --rm -it -p 8080:8080 matrikkel-api
 ```
 
 Hit Ctrl+C to exit.
