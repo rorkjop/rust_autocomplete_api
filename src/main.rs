@@ -84,6 +84,10 @@ async fn autocomplete_route(
     response
 }
 
+async fn health_route() -> impl Responder {
+    HttpResponse::Ok().json(json!({ "status": "ok" }))
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // Print process ID
@@ -102,6 +106,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(data.clone())
             .route("/autocomplete", web::get().to(autocomplete_route))
+            .route("/health", web::get().to(health_route))
     })
     .workers(2)
     .max_connections(500)
