@@ -4,3 +4,4 @@
 !/data/adresser.sample.csv.gz
 !/data/stats
 !/data/.gitkeep
+/.direnv/
